@@ -1,6 +1,9 @@
 
 (in-package :plus.paren)
 
+(defsection @runtime-manual (:title "Runtime manual")
+  )
+
 (defparameter *standard-cl*
   '(progn
 
@@ -18,6 +21,36 @@
     ;; getf 894
     ;; gethash 1126
 
+;    (defun get (lookup obj)
+    
+    (defun partial (fn &rest args)
+      (lambda (&rest more-args)
+        (-> fn (apply this (-> (array) (concat args more-args))))))
+    
+  ;;   (defun partial (fn &rest args)
+  ;;     (lambda ()
+  ;;       (let ((arg 0))
+  ;;         (do ((i 0 (1+ i)))
+  ;;             ((and (< i (length args)) (< arg arguments.length)))
+  ;;           (when (eql (aref args i) undefined)
+  ;;             (setf (aref args i)
+  ;;                   (aref arguments (1+ arg))
+  ;;                   arg (1+ arg))))
+  ;;         (-> fn (apply this args)))))
+      
+  ;;       var fn = this, args = Array.prototype.slice.call(arguments);
+  ;;   return function(){
+  ;;     var arg = 0;
+  ;;     for ( var i = 0; i < args.length && arg < arguments.length; i++ )
+  ;;       if ( args[i] === undefined )
+  ;;         args[i] = arguments[arg++];
+  ;;     return fn.apply(this, args);
+  ;;   };
+  ;; };
+    
+    (defun eql (a b)
+      (eql a b))
+    
     (defun find (item lst &key (test #'eql))
       (find-if (partial test item) lst))
     
@@ -98,16 +131,29 @@
       "Check if ITEM is a member of ARR."
       (if (find item lst :test test) t f))
 
-        ;; this are taken from parenscript runtime
+    (defun mapcan (fun arr)
+      (when (and (length arr)
+                 (arrayp arr))
+        (let ((res (make-array)))
+          (dolist (el arr)
+            (let ((val (fun el)))
+              (if (arrayp val)
+                  (setq res (-> res (concat val)))
+                  (-> res (push val)))))
+          res)))
+    
+    ;; this are taken from parenscript runtime
     (defun mapcar (fun &rest arrs)
-      (let ((result-array (make-array)))
-        (if (eq 1 (length arrs))
-            (dolist (element (aref arrs 0))
-              ((@ result-array push) (fun element)))
-            (dotimes (i (length (aref arrs 0)))
-              (let ((args-array (mapcar (lambda (a) (aref a i)) arrs)))
-                ((@ result-array push) ((@ fun apply) fun args-array)))))
-        result-array))
+      (when (and (length arrs)
+                 (arrayp (aref arrs 0)))
+        (let ((result-array (make-array)))
+          (if (eq 1 (length arrs))
+              (dolist (element (aref arrs 0))
+                ((@ result-array push) (fun element)))
+              (dotimes (i (length (aref arrs 0)))
+                (let ((args-array (mapcar (lambda (a) (aref a i)) arrs)))
+                  ((@ result-array push) ((@ fun apply) fun args-array)))))
+          result-array)))
 
     (defun map-into (fn arr)
       "Call FN on each element in ARR, replace element with the return value."

@@ -1,9 +1,9 @@
 
 (defpackage :plus.paren
-  (:use :cl :parenscript :anaphora :serve.paren :mgl-pax)
+  (:use :cl :parenscript :anaphora :serve.paren :contracts.paren :mgl-pax)
   (:nicknames "plus")
   (:documentation "Utility library for Parenscript, provides some
-  macros, shortcuts and subset of standard common lisp functions")
+  macros, shortcuts and subset of standard common lisp functions.")
   (:export :->
            :create*
            :defun/partial

@@ -5,8 +5,17 @@
     :package :plus.paren
     :runtime (list 'progn *standard-cl* *plus-library* *jsclass-runtime*))
 
-(defsection @plus-manual (:title "Plus manual")
+(defsection @main-manual (:title "Plus manual")
+  (plus.paren asdf:system)
+  
   "plus.paren provides more common lisp functions ported to parenscript as well as some other non standard cl but useful in js functions and utilities"
+
+  (@general-utilities section)
+  (@class-manual section)
+  (@anaphorics-manual section)
+  (@runtime-manual section))
+
+(defsection @general-utilities (:title "Random utilities")
   (create* psmacro)
   (-> psmacro)
   (defun/log psmacro)

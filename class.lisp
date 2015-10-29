@@ -1,6 +1,12 @@
 
 (in-package :plus.paren)
 
+(defsection @class-manual (:title "Class definitions for Javascript")
+  (defjsclass psmacro)
+  (defmeta psmacro)
+  (setf% psmacro)
+  (*with-self* variable))
+
 (defparameter *with-self* t
   "When set to t will expand all defun forms with \"self\" variable
   defined and bound to this, default is t")
@@ -18,6 +24,18 @@
 
 (defparameter *jsclass-runtime*
   '(progn
+    (defun build-id (&key prefix)
+      (flet ((gen-id (&optional (length 8))
+               (let* ((res (array))
+                      (possible "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+                      (possible-length (@ possible length)))
+                 (dotimes (i length)
+                   (chain res (push (chain possible (char-at (floor (* (random) possible-length)))))))
+                 (chain res (join "")))))
+        (if prefix
+            (+ prefix (gen-id))
+            (gen-id))))
+    
     (defun extend (base sub)
       (let ((orig-proto (@ sub prototype)))
 
@@ -32,14 +50,17 @@
         (chain *object (define-property (@ sub prototype) "constructor"
                          (create :enumerable false
                                  :value sub))))))
-  "Runtime defines only one method - extend, which can be used to
-  setup inheritance for javascript objects")
+  "Runtime defines only one method - extend, which is used to setup
+  inheritance for javascript objects")
 
 ;(defpslib "jsclass" :runtime *jsclass-runtime*)
 
 (defun defun-form-p (form)
   "Check if form is a function definition form"
-  (member (symbol-name (car form)) (mapcar #'symbol-name defun-names) :test #'equalp))
+  (if (listp form)
+      (member (symbol-name (car form))
+              (mapcar #'symbol-name defun-names) :test #'equalp)
+      nil))
 
 (defun transform-defun (defun-form)
   "Transforms named defun form to anonymous lambda form"
@@ -53,20 +74,28 @@
             
 (defun parse-class-body (body)
   "Splits class definition into class initialization code and methods"
-  (let ((forms (remove-if #'defun-form-p body))
-        (defuns (remove-if-not #'defun-form-p body)))
-    (values forms defuns)))
+  (let* ((defuns (remove-if-not #'defun-form-p body))
+         (documentation (if (stringp (car body))
+                            (car body)
+                            nil))
+         (forms (if documentation
+                     (remove-if #'defun-form-p (cdr body))
+                     (remove-if #'defun-form-p body))))
+    (values documentation forms defuns)))
 
 (defpsmacro defjsclass (name super-classes &rest body)
   "Defines new javascript class with super classes. Syntax for class
   definition is the following:
   (defjsclass $name ($superclass ...)
+    Documentation string
+    (:options ...)
     $initialization forms
     (defun $method-name ($method-param ...)
       $method-code))"
-  (multiple-value-bind (forms defuns)
+  (multiple-value-bind (documentation forms defuns)
       (parse-class-body body)
     `(progn (defun ,name (&rest args)
+              ,documentation
               (setf (@ this meta) (@ this constructor meta)
                     (@ this id) (build-id))
               
@@ -98,8 +127,9 @@
     `(setf (@ ,name meta) (create ,@(flatten-car body)))))
 
 (defpsmacro setf% (&rest args)
+  "Call setf on this"
   (assert (evenp (length args)) ()
-          "~s does not have an even number of arguments." `(this-setf ,args))
+          "~s does not have an even number of arguments." `(setf% ,args))
   `(progn ,@(loop for (place value) on args by #'cddr collect
                  (aif (and (listp place) (gethash (car place) ps::*setf-expanders*))
                       (funcall it (cdr place) value)
