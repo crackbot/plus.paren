@@ -10,4 +10,8 @@
            :@plus-manual
            :defjsclass
            :defmeta
-           :setf%))
+           :setf%
+           :@%
+   
+           :switch-with-break
+           :dolist-idx))

@@ -1,12 +1,11 @@
 
 (in-package :plus.paren)
 
-(defsection @anaphorics-manual (:title "Anaphoric macros for Parenscript")
-  (when-let psmacro)
-  )
+(defsection @bindings-manual (:title "Bindings macros for Parenscript")
+  (when-let psmacro))
 
 (defpsmacro when-let (bindings &body forms)
-  "Creates new variable bindings, and conditionally executes FORMS."
+  "Create new variable bindings, and conditionally executes FORMS."
   (let* ((binding-list (if (and (consp bindings) (symbolp (car bindings)))
                            (list bindings)
                            bindings))

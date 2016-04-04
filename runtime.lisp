@@ -2,7 +2,47 @@
 (in-package :plus.paren)
 
 (defsection @runtime-manual (:title "Runtime manual")
-  )
+  "Different functions defined as a SERVE.PAREN runtime"
+  (@standard-cl section)
+  (@plus-library section))
+
+(defsection @standard-cl (:title "Standard CL functions")
+  (partial (static-ps-function *standard-cl*))
+  (eql (static-ps-function *standard-cl*))
+  (find (static-ps-function *standard-cl*))
+  (find-if (static-ps-function *standard-cl*))
+  (reverse (static-ps-function *standard-cl*))
+  (adjoin (static-ps-function *standard-cl*))
+  (append (static-ps-function *standard-cl*))
+  (every (static-ps-function *standard-cl*))
+  (copy-list (static-ps-function *standard-cl*))
+  (last (static-ps-function *standard-cl*))
+  (remove-if (static-ps-function *standard-cl*))
+  (count (static-ps-function *standard-cl*))
+  (rest (static-ps-function *standard-cl*))
+  (position (static-ps-function *standard-cl*))
+  (assoc (static-ps-function *standard-cl*))
+  (subseq (static-ps-function *standard-cl*))
+  (memeber (static-ps-function *standard-cl*))
+  (mapcan (static-ps-function *standard-cl*))
+  (mapcar (static-ps-function *standard-cl*))
+  (map-into (static-ps-function *standard-cl*))
+  (map (static-ps-function *standard-cl*))
+  (set-difference (static-ps-function *standard-cl*))
+  (reduce (static-ps-function *standard-cl*))
+  (nconc (static-ps-function *standard-cl*))
+  (maplist (static-ps-function *standard-cl*)))
+
+(defsection @plus-library (:title "plus.paren additional functions")
+  (filter (static-ps-function *plus-library*))
+  (nreplace (static-ps-function *plus-library*))
+  (find-idx (static-ps-function *plus-library*))
+  (vals (static-ps-function *plus-library*))
+  (keys (static-ps-function *plus-library*))
+  (len (static-ps-function *plus-library*))
+  (onep (static-ps-function *plus-library*))
+  (onem (static-ps-function *plus-library*))
+  (defaults (static-ps-function *plus-library*)))
 
 (defparameter *standard-cl*
   '(progn
@@ -21,7 +61,7 @@
     ;; getf 894
     ;; gethash 1126
 
-;    (defun get (lookup obj)
+    ;; (defun get (lookup obj)
     
     (defun partial (fn &rest args)
       (lambda (&rest more-args)
@@ -49,21 +89,35 @@
   ;; };
     
     (defun eql (a b)
+      "Check if a and b EQL"
       (eql a b))
     
     (defun find (item lst &key (test #'eql))
+      "Find item in list using TEST"
       (find-if (partial test item) lst))
     
     (defun find-if (pred lst)
+      "Return first value from list that pass PRED test"
       (dolist (item lst)
         (when (pred item)
           (return-from find-if item))))
+
+    (defun reverse (lst)
+      "Return reversed list"
+      (-> lst (reverse)))
     
     (defun adjoin (item lst &key (test #'eql))
       "Add item to lst unless it's already present"
       (when (not (find item lst))
         (chain lst (push item))))
 
+    (defun append (&rest arrays)
+      "Concatenate arrays"
+      (let ((res (array)))
+        (dolist (arr arrays)
+          (setf res (-> res (concat arr))))
+        res))
+    
     (defmacro string-downcase (str)
       `(chain ,str (to-lower-case))) 
 
@@ -218,6 +272,7 @@
          (setf ,var1 ,def1)))
     
     (defun filter (pred lst)
+      "Same as remove-if-not"
       (let ((res (array)))
         (dolist (item lst)
           (when (pred item)
@@ -238,20 +293,25 @@
     ;;   `(chain ,arr (pop)))
 
     (defmacro join (sym arr)
+      "Create a string by joining two array with sym"
       `(chain ,arr (join ,sym)))
 
     (defmacro except-last (arr)
+      "Return every array elements except last one"
       `(chain ,arr (slice 0 -1)))
 
     (defmacro last (arr)
+      "Return last array element"
       (let ((var (ps::ps-gensym)))
         `(let ((,var ,arr))
            (getprop ,var (- (length ,var) 1)))))
 
     (defmacro split (sym arr)
+      "Split array using sym"
       `(chain ,arr (split ,sym)))
     
     (defmacro slice (arr start &optional end)
+      "Splice"
       (if end
           `(chain ,arr (slice ,start ,end))
           `(chain ,arr (slice ,start))))
@@ -276,9 +336,9 @@
           (setf (aref lst idx) obj2)))
       lst)
     
-    (defun find-idx (lst obj eq-fun)
-      (setf eq-fun (or eq-fun (lambda (x y)
-                                (eq x y))))
+    (defun find-idx (lst obj &optional (eq-fun (lambda (x y)
+                                             (eq x y))))
+      "Same as find but returns index instead of element"
       (let ((res nil))
         (do ((idx 0 (1+ idx)))
             ((>= idx (length lst)))
@@ -288,15 +348,17 @@
         res))
     
     (defun vals (obj)
+      "Object values"
       (let ((res (array)))
         (for-in (key obj)
           (push (getprop obj key) res))
         res))
 
     (defun keys (obj)
+      "Object keys"
       (let ((res (array)))
         (for-in (key obj)
-          (push res key))
+          (push key res))
         res))
 
     ;; first order functions
@@ -308,4 +370,12 @@
     
     (defun onem (val)
       (1- val))
-  ))
+
+    (defun defaults (obj def)
+      "Iterate through DEF keys and values setting any key found in
+DEF but not found in OBJ to corresponding value"
+      (dolist (key (keys def))
+        (when (not (getprop obj key))
+          (setf (getprop obj key)
+                (getprop def key))))
+      obj)))
