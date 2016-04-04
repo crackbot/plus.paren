@@ -35,7 +35,7 @@
 
 ```lisp
    (let ((obj (create)))
-     obj[some-variable] = value;
+     (setf (getprop obj some-variable) value)
      obj)
 ```"
   `(let ((obj (create)))
@@ -54,7 +54,18 @@
   `(chain ,@body))
 
 (defpsmacro @% (&rest body)
-  "Shortcut for this accessor"
+  "Shortcut for this accessor
+
+```lisp
+(@% hello)
+```
+
+   Expands into
+
+```lisp
+(@ this hello)
+```
+"
   `(@ this ,@body))
 
 (defpsmacro defun/partial (name lambda-list &body body)

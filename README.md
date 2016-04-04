@@ -7,7 +7,7 @@
 - [1 plus.paren ASDF System Details][f52d]
 - [2 Random utilities][d40d]
 - [3 Class definitions for Javascript][f3b6]
-- [4 Anaphoric macros for Parenscript][caf3]
+- [4 Bindings macros for Parenscript][a0d8]
 - [5 Runtime manual][8c5d]
     - [5.1 Standard CL functions][d47a]
     - [5.2 plus.paren additional functions][75ee]
@@ -152,9 +152,9 @@ plus.paren provides more common lisp functions ported to parenscript as well as 
     When set to t will expand all defun forms with "self" variable
     defined and bound to this, default is t
 
-<a id='x-28PLUS-2EPAREN-3A-40ANAPHORICS-MANUAL-20MGL-PAX-3ASECTION-29'></a>
+<a id='x-28PLUS-2EPAREN-3A-40BINDINGS-MANUAL-20MGL-PAX-3ASECTION-29'></a>
 
-## 4 Anaphoric macros for Parenscript
+## 4 Bindings macros for Parenscript
 
 <a id='x-28PLUS-2EPAREN-3AWHEN-LET-20-28PLUS-2EPAREN-3A-3APSMACRO-29-29'></a>
 
@@ -348,7 +348,7 @@ Different functions defined as a `SERVE.PAREN` runtime
 
   [75ee]: #x-28PLUS-2EPAREN-3A-40PLUS-LIBRARY-20MGL-PAX-3ASECTION-29 "plus.paren additional functions"
   [8c5d]: #x-28PLUS-2EPAREN-3A-40RUNTIME-MANUAL-20MGL-PAX-3ASECTION-29 "Runtime manual"
-  [caf3]: #x-28PLUS-2EPAREN-3A-40ANAPHORICS-MANUAL-20MGL-PAX-3ASECTION-29 "Anaphoric macros for Parenscript"
+  [a0d8]: #x-28PLUS-2EPAREN-3A-40BINDINGS-MANUAL-20MGL-PAX-3ASECTION-29 "Bindings macros for Parenscript"
   [d3a6]: #x-28EQL-20-28PLUS-2EPAREN-3A-3ASTATIC-PS-FUNCTION-20PLUS-2EPAREN-3A-3A-2ASTANDARD-CL-2A-29-29 "(EQL (PLUS.PAREN::STATIC-PS-FUNCTION PLUS.PAREN::*STANDARD-CL*))"
   [d40d]: #x-28PLUS-2EPAREN-3A-40GENERAL-UTILITIES-20MGL-PAX-3ASECTION-29 "Random utilities"
   [d47a]: #x-28PLUS-2EPAREN-3A-40STANDARD-CL-20MGL-PAX-3ASECTION-29 "Standard CL functions"
